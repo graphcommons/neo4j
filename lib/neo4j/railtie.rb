@@ -29,7 +29,8 @@ module Neo4j
         setup_config_defaults!(cfg)
 
         return if !cfg.sessions.empty?
-
+        return if cfg.skip_default_session
+        
         cfg.sessions << {type: cfg.session_type, path: cfg.session_path, options: cfg.session_options}
       end
 
@@ -95,9 +96,10 @@ module Neo4j
     # register migrations in config/initializers
     initializer 'neo4j.start', after: :load_config_initializers do |app|
       cfg = app.config.neo4j
+ 
       # Set Rails specific defaults
       Neo4j::Railtie.setup_default_session(cfg)
-
+      
       cfg.sessions.each do |session_opts|
         Neo4j::Railtie.open_neo4j_session(session_opts)
       end
