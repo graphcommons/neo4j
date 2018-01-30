@@ -14,6 +14,10 @@ module Neo4j
           most_concrete_class = class_from_type(rel.rel_type).constantize
           return rel unless most_concrete_class < Neo4j::ActiveRel
           most_concrete_class.new
+        rescue LoadError => e
+          raise e unless e.message =~ /autoload constant/
+
+          return rel
         rescue NameError => e
           raise e unless e.message =~ /(uninitialized|wrong) constant/
 
